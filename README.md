@@ -13,6 +13,6 @@ from myapp import mymodel
 ```
 
 - Далее вводим: ```alembic revision --autogenerate -m "comment"```
-- Созданат миграция
-- Дальше вводом ```alembic upgrade heads```
+- Создана миграция
+- Дальше вводим ```alembic upgrade heads```
 - 
