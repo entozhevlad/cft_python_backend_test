@@ -23,6 +23,7 @@ class UserCreate(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
+    password: str
 
     @validator("username")
     def validate_username(cls, values):
@@ -99,3 +100,7 @@ class UpdateUserRequest(BaseModel):
                 status_code=422, detail="Фамилия должна содержать только символы кириллицы"
             )
         return values
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str

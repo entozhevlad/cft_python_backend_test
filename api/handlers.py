@@ -7,6 +7,7 @@ from db.session import get_db
 from typing import Union
 from uuid import UUID
 from logging import getLogger
+from hashing import Hasher
 
 logger = getLogger(__name__)
 
@@ -19,7 +20,8 @@ async def _create_new_user(body: UserCreate, db) -> ShowUser:
                 username=body.username,
                 first_name=body.first_name,
                 last_name=body.last_name,
-                email=body.email
+                email=body.email,
+                hashed_password=Hasher.get_password_hash(body.password)
             )
             return ShowUser(
                 user_id=user.user_id,
