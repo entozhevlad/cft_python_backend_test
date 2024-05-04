@@ -79,7 +79,7 @@ class UpdateUserRequest(BaseModel):
             raise HTTPException(
                 status_code=422, detail="Имя пользователя должно содержать не менее 3 символов"
                                 )
-
+ 
         if values.isdigit():
             raise HTTPException(
                 status_code=422, detail="Имя пользователя не должно содержать только цифры"

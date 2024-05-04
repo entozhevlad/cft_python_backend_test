@@ -36,9 +36,9 @@ class UserDAL:
         if user_row is not None:
             return user_row[0]
 
-    async def update_user(self, **kwargs) -> Union[UUID, None]:
+    async def update_user(self,user_id: UUID, **kwargs) -> Union[UUID, None]:
         query = update(User). \
-            where(User.is_active == True). \
+            where(and_(User.user_id == user_id, User.is_active == True)). \
             values(kwargs). \
             returning(User.user_id)
         res = await self.db_session.execute(query)
