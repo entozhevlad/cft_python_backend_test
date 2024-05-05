@@ -1,32 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.models import Token
-from db.dals import UserDAL
 from db.models import User
 from db.session import get_db
-from typing import Union
-from hashing import Hasher
 from datetime import timedelta
 import settings
 from jose import jwt, JWTError
 from security import create_access_token
 login_router = APIRouter()
+from api.actions.auth import authentificate_user, _get_user_by_username_for_auth, oauth2_scheme
 
-async def _get_user_by_username_for_auth(username:str, db: AsyncSession):
-    async with db as session:
-        async with session.begin():
-            user_dal = UserDAL(session)
-            return await user_dal.get_user_by_username(
-                username=username,
-            )
-async def authentificate_user(username: str, password: str, db: AsyncSession) -> Union[User, None]:
-    user = await _get_user_by_username_for_auth(username=username, db=db)
-    if user is None:
-        return
-    if not Hasher.verify_password(password, user.hashed_password):
-        return
-    return user
+
+login_router = APIRouter()
 
 @login_router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
@@ -41,7 +27,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type" : "bearer"}
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")
 
 async def get_current_user_from_token(
         token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
