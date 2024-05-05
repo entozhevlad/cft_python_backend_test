@@ -54,6 +54,15 @@ class UserDAL:
         if user_row is not None:
             return user_row[0]
 
+    async def get_salary_and_raise_date_by_username(
+            self, username: str,
+    ) -> Union[Salary, None]:
+        query = select(Salary).join(User).where(User.username == username)
+        res = await self.db_session.execute(query)
+        salary_row = res.fetchone()
+        if salary_row is not None:
+            return salary_row[0]
+
 class SalaryDAL:
     def __init__(self, db_session:AsyncSession):
         self.db_session = db_session

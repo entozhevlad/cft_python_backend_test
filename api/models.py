@@ -3,20 +3,25 @@ import uuid
 from typing import Optional
 from fastapi import HTTPException
 from pydantic import BaseModel, EmailStr, validator, constr
+from datetime import date
 
 LETTER_MATCH_PATTERN_USERNAME = re.compile(r"^[a-zA-Z0-9_]+$")
 LETTER_MATCH_PATTERN_NAME = re.compile(r"[а-яA-Яa-zA-z\-]+$")
-class TundeModel(BaseModel):
+class TunedModel(BaseModel):
     class Config:
         orm_mode = True
 
-class ShowUser(TundeModel):
+class ShowUser(TunedModel):
     user_id: uuid.UUID
     username: str
     first_name: str
     last_name: str
     email: EmailStr
     is_active: bool
+
+class ShowSalary(TunedModel):
+    salary_amount: float
+    next_raise_date: Optional[date]
 
 class UserCreate(BaseModel):
     username: str

@@ -13,6 +13,7 @@ async def _get_user_by_username_for_auth(username:str, db: AsyncSession):
             return await user_dal.get_user_by_username(
                 username=username,
             )
+
 async def authentificate_user(username: str, password: str, db: AsyncSession) -> Union[User, None]:
     user = await _get_user_by_username_for_auth(username=username, db=db)
     if user is None:

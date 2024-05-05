@@ -52,3 +52,16 @@ async def get_current_user_from_token(
 @login_router.get("/test_auth_endpoint")
 async def sample_endpoint_under_jwt(current_user: User = Depends(get_current_user_from_token),):
     return {"Success": True, "current_user": current_user}
+
+
+# Метод получения размера зарплаты и даты следующего повышения
+
+# @login_router.get("/salary")
+# async def get_current_user_salary(current_user: User = Depends(get_current_user_from_token), db: AsyncSession = Depends(get_db)):
+#     salary_data = await get_salary_and_raise_date(current_user.username, db)
+#     if not salary_data:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Salary data not available for current user"
+#         )
+#     return salary_data
