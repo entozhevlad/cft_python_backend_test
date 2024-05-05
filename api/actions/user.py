@@ -1,18 +1,30 @@
 from api.models import UserCreate, ShowUser
-from db.dals import UserDAL
+from db.dals import UserDAL, SalaryDAL
 from typing import Union
 from uuid import UUID
 from hashing import Hasher
+import hashlib
+from datetime import date, timedelta
+
 async def _create_new_user(body: UserCreate, session) -> ShowUser:
     async with session.begin():
         user_dal = UserDAL(session)
+        salary_dal = SalaryDAL(session)
+
         user = await user_dal.create_user(
             username=body.username,
             first_name=body.first_name,
             last_name=body.last_name,
             email=body.email,
-            hashed_password=Hasher.get_password_hash(body.password)
+            hashed_password=Hasher.get_password_hash(body.password),
+
         )
+        await salary_dal.create_salary(
+            user_id=user.user_id,
+            salary_amount=body.salary_amount,
+            next_raise_date=date.today() + timedelta(days=365)
+        )
+
         return ShowUser(
             user_id=user.user_id,
             username=user.username,

@@ -2,7 +2,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import update, and_, select
 from typing import Union
 from uuid import UUID
-from db.models import User
+from db.models import User, Salary
+from datetime import date
 class UserDAL:
     def __init__(self, db_session:AsyncSession):
         self.db_session = db_session
@@ -52,3 +53,20 @@ class UserDAL:
         user_row = res.fetchone()
         if user_row is not None:
             return user_row[0]
+
+class SalaryDAL:
+    def __init__(self, db_session:AsyncSession):
+        self.db_session = db_session
+
+    async def create_salary(
+            self, user_id: UUID, salary_amount: float, next_raise_date: date
+    ) -> Salary:
+        new_salary = Salary(
+            user_id=user_id,
+            amount=salary_amount,
+            next_raise_date=next_raise_date
+        )
+        self.db_session.add(new_salary)
+        await self.db_session.flush()
+        return new_salary
+

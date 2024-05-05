@@ -24,7 +24,7 @@ class UserCreate(BaseModel):
     last_name: str
     email: EmailStr
     password: str
-
+    salary_amount: float
     @validator("username")
     def validate_username(cls, values):
         if not LETTER_MATCH_PATTERN_USERNAME.match(values):
@@ -46,16 +46,24 @@ class UserCreate(BaseModel):
     def validate_first_name(cls, values):
         if not LETTER_MATCH_PATTERN_NAME.match(values):
             raise HTTPException(
-                status_code=422, detail="Имя должно содержать только символы кириллицы"
+                status_code=422, detail="Имя должно содержать только символы кириллицы или латницы"
                                 )
         return values
     @validator("last_name")
     def validate_last_name(cls, values):
         if not LETTER_MATCH_PATTERN_NAME.match(values):
             raise HTTPException(
-                status_code=422, detail="Фамилия должна содержать только символы кириллицы"
+                status_code=422, detail="Фамилия должна содержать только символы кириллицы или латиницы"
             )
         return values
+
+    @validator("salary_amount")
+    def validate_salary(cls, value):
+        if value <= 0:
+            raise ValueError("Сумма должна быть больше нуля")
+        if not re.match(r"^\d+(\.\d{1,2})?$", str(value)):
+            raise ValueError("Неверный формат зарплаты")
+        return value
 
 class DeleteUserResponse(BaseModel):
     deleted_user_id: uuid.UUID
