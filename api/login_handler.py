@@ -41,3 +41,29 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type" : "bearer"}
 
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")
+
+async def get_current_user_from_token(
+        token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
+):
+    credentinals_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                           detail="Не удалось проверить данные",
+    )
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        username: str = payload.get("sub")
+        print("username/email extracted is ", username)
+        if username is None:
+            raise  credentinals_exception
+    except JWTError:
+        raise credentinals_exception
+    user = await _get_user_by_username_for_auth(username=username, db=db)
+    if user is None:
+        raise credentinals_exception
+    return user
+
+@login_router.get("/test_auth_endpoint")
+async def sample_endpoint_under_jwt(current_user: User = Depends(get_current_user_from_token),):
+    return {"Success": True, "current_user": current_user}
