@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.models import Token
+from api.models import Token, ShowSalary
 from db.models import User
 from db.session import get_db
 from datetime import timedelta
@@ -9,7 +9,7 @@ import settings
 from jose import jwt, JWTError
 from security import create_access_token
 login_router = APIRouter()
-from api.actions.auth import authentificate_user, _get_user_by_username_for_auth, oauth2_scheme
+from api.actions.auth import authentificate_user, _get_user_by_username_for_auth, oauth2_scheme, _get_user_salary
 
 
 login_router = APIRouter()
@@ -56,12 +56,12 @@ async def sample_endpoint_under_jwt(current_user: User = Depends(get_current_use
 
 # Метод получения размера зарплаты и даты следующего повышения
 
-# @login_router.get("/salary")
-# async def get_current_user_salary(current_user: User = Depends(get_current_user_from_token), db: AsyncSession = Depends(get_db)):
-#     salary_data = await get_salary_and_raise_date(current_user.username, db)
-#     if not salary_data:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Salary data not available for current user"
-#         )
-#     return salary_data
+@login_router.get("/salary", response_model=ShowSalary)
+async def get_current_user_salary(current_user: User = Depends(get_current_user_from_token), db: AsyncSession = Depends(get_db)):
+    salary_data = await _get_user_salary(current_user.username, db)
+    if not salary_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Данные о зарплате для текущего пользователя не найдены"
+        )
+    return salary_data

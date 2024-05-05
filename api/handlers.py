@@ -5,7 +5,7 @@ from api.models import UserCreate, ShowUser, DeleteUserResponse, UpdatedUserResp
 from db.session import get_db
 from uuid import UUID
 from logging import getLogger
-from api.actions.user import _create_new_user, _update_user, _delete_user, _get_user_by_id, _get_user_salary
+from api.actions.user import _create_new_user, _update_user, _delete_user, _get_user_by_id
 
 logger = getLogger(__name__)
 
@@ -52,12 +52,12 @@ async def update_user_by_id(user_id: UUID, body: UpdateUserRequest, db: AsyncSes
     return UpdatedUserResponce(updated_user_id=updated_user_id)
 
 
-@user_router.get("/salary", response_model=ShowSalary)
-async def get_user_salary(username: str, db: AsyncSession = Depends(get_db)) -> ShowSalary:
-    salary_data = await _get_user_salary(username, db)
-    if not salary_data:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Данные о зарплате для пользователя с именем {username} не найдены."
-        )
-    return salary_data
+# @user_router.get("/salary", response_model=ShowSalary)
+# async def get_user_salary(username: str, db: AsyncSession = Depends(get_db)) -> ShowSalary:
+#     salary_data = await _get_user_salary(username, db)
+#     if not salary_data:
+#         raise HTTPException(
+#             status_code=404,
+#             detail=f"Данные о зарплате для пользователя с именем {username} не найдены."
+#         )
+#     return salary_data
