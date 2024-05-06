@@ -10,13 +10,10 @@ import asyncio
 from db.session import get_db
 import asyncpg
 
-
-
-
 CLEAN_TABLES = [
     "users",
+    "salaries"
 ]
-
 
 @pytest.fixture(scope="session")
 def event_loop():

@@ -44,7 +44,7 @@ async def update_user_by_id(user_id: UUID, body: UpdateUserRequest, db: AsyncSes
     if user is None:
         raise HTTPException(status_code=404, detail=f"Пользователь с id {user_id} не найден.")
     try:
-        updated_user_id = await _update_user(updated_user_params=updated_user_params, user_id=user_id, db=db)
+        updated_user_id = await _update_user(updated_user_params=updated_user_params, user_id=user_id, session=db)
     except IntegrityError as err:
         logger.error(err)
         raise HTTPException(status_code=503, detail=f"Ошибка базы данных: {err}")
@@ -52,12 +52,3 @@ async def update_user_by_id(user_id: UUID, body: UpdateUserRequest, db: AsyncSes
     return UpdatedUserResponce(updated_user_id=updated_user_id)
 
 
-# @user_router.get("/salary", response_model=ShowSalary)
-# async def get_user_salary(username: str, db: AsyncSession = Depends(get_db)) -> ShowSalary:
-#     salary_data = await _get_user_salary(username, db)
-#     if not salary_data:
-#         raise HTTPException(
-#             status_code=404,
-#             detail=f"Данные о зарплате для пользователя с именем {username} не найдены."
-#         )
-#     return salary_data

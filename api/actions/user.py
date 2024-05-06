@@ -66,13 +66,3 @@ async def _get_user_by_id(user_id, session) -> Union[ShowUser, None]:
                 is_active=user.is_active,
             )
 
-# async def _get_user_salary(username: str, session) -> Union[ShowSalary, None]:
-#     user_dal = UserDAL(session)
-#     salary = await user_dal.get_salary_and_raise_date_by_username(
-#             username=username,
-#         )
-#     if salary is not None:
-#         return ShowSalary(
-#             salary_amount=salary.amount,
-#             next_raise_date = salary.next_raise_date
-#         )
