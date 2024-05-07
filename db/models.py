@@ -1,11 +1,11 @@
 import uuid
-from sqlalchemy import Column, String, Boolean, Date, ForeignKey, Float
+from sqlalchemy import Column, String, Boolean, Date, ForeignKey, Float, MetaData
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base, relationship
 
 
 Base = declarative_base()
-
+metadata = MetaData()
 class User(Base):
     __tablename__ = "users"
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

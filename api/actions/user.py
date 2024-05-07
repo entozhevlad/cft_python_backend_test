@@ -3,7 +3,6 @@ from db.dals import UserDAL, SalaryDAL
 from typing import Union
 from uuid import UUID
 from hashing import Hasher
-import hashlib
 from datetime import date, timedelta
 
 async def _create_new_user(body: UserCreate, session) -> ShowUser:

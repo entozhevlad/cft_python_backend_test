@@ -9,10 +9,14 @@ import os
 import asyncio
 from db.session import get_db
 import asyncpg
+from security import create_access_token
+from datetime import timedelta
+
 
 CLEAN_TABLES = [
-    "users",
-    "salaries"
+    "salaries",
+    "users"
+
 ]
 
 @pytest.fixture(scope="session")
@@ -37,13 +41,16 @@ async def async_session_test():
 
 
 from sqlalchemy import text
-@pytest.fixture(scope="function", autouse=True)
+from sqlalchemy import text
+
+@pytest.fixture(scope="module", autouse=True)
 async def clean_tables(async_session_test):
     """Clean data in all tables before running test function"""
     async with async_session_test() as session:
         async with session.begin():
-            for table_for_cleaning in CLEAN_TABLES:
-                await session.execute(text(f"TRUNCATE TABLE {table_for_cleaning};"))
+            # Clean the salaries table first
+            await session.execute(text("TRUNCATE TABLE users CASCADE;"))
+            # await session.execute(text("TRUNCATE TABLE users CASCADE;"))
 
 
 async def _get_test_db():
@@ -81,16 +88,27 @@ async def get_user_from_database(asyncpg_pool):
 
     async def get_user_from_database_by_uuid(user_id: str):
         async with asyncpg_pool.acquire() as connection:
-            return await connection.fetch("""SELECT * FROM users WHERE user_id = $1;""", user_id)
+            query = """SELECT * FROM users WHERE user_id = $1;"""
+            return await connection.fetchrow(query, user_id)
 
     return get_user_from_database_by_uuid
 
+
+
 @pytest.fixture
 async def create_user_in_database(asyncpg_pool):
-    async def create_user_in_database(user_id: str, username: str, first_name: str, last_name: str, email: str, is_active: bool):
+    async def create_user_in_database(user_id: str, username: str, first_name: str, last_name: str, email: str, is_active: bool, hashed_password: str):
         async with asyncpg_pool.acquire() as connection:
             await connection.execute(
-                """INSERT INTO users (user_id, username, first_name, last_name, email, is_active) VALUES ($1, $2, $3, $4, $5, $6);""",
-                user_id, username, first_name, last_name, email, is_active
+                """INSERT INTO users (user_id, username, first_name, last_name, email, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7);""",
+                user_id, username, first_name, last_name, email, is_active, hashed_password
             )
     return create_user_in_database
+
+
+def create_test_auth_headers_for_user(username: str) -> dict[str, str]:
+    access_token = create_access_token(
+        data={"sub": username},
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+    )
+    return {"Authorization": f"Bearer {access_token}"}
