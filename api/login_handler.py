@@ -49,11 +49,6 @@ async def get_current_user_from_token(
         raise credentinals_exception
     return user
 
-@login_router.get("/test_auth_endpoint")
-async def sample_endpoint_under_jwt(current_user: User = Depends(get_current_user_from_token),):
-    return {"Success": True, "current_user": current_user}
-
-
 # Метод получения размера зарплаты и даты следующего повышения
 
 @login_router.get("/salary", response_model=ShowSalary)
