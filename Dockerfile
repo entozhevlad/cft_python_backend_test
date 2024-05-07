@@ -1,19 +1,11 @@
-ARG BASE_IMAGE=python:3.12-slim
-FROM $BASE_IMAGE
+FROM python:3.12
 
-RUN apt-get -y update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    postgresql-client \
-    openssl libssl-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /usr/src/app
 
 COPY . .
-WORKDIR .
 
-RUN python3 -m pip install --user --upgrade pip && \
-    python3 -m pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "main.py"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+
+EXPOSE 80/tcp

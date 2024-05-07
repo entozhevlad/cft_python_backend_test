@@ -110,7 +110,7 @@ class UpdateUserRequest(BaseModel):
     def validate_last_name(cls, values):
         if not LETTER_MATCH_PATTERN_NAME.match(values):
             raise HTTPException(
-                status_code=422, detail="Фамилия должна содержать только символы кириллицы"
+                status_code=422, detail="Фамилия должна содержать только символы кириллицы или латиницы"
             )
         return values
 

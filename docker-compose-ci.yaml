@@ -1,0 +1,41 @@
+version: "3.0"
+services:
+  db:
+    container_name: "db"
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DB=postgres
+    ports:
+    - "5432:5432"
+    networks:
+     - custom
+  db_test:
+    container_name: "db_test"
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres_test
+      - POSTGRES_PASSWORD=postgres_test
+      - POSTGRES_DB=postgres_test
+    ports:
+      - "5433:5432"
+    networks:
+      - custom
+  cft_backend_app:
+    container_name: "cft_backend_test"
+    image: cft_backend_app:latest
+    environment:
+      REAL_DATABASE_URL: "postgresql+asyncpg://postgres:postgres@db:5432/postgres"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    networks:
+      - custom
+networks:
+  custom:
+    driver: bridge
