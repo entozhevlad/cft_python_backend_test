@@ -86,7 +86,7 @@ python -m venv .venv
 ```
 Активируйте его
 ```bash
-.venv/Scripts/activate
+.venv\Scripts\activate
 ```
 Теперь установить зависимости из файла requirements.txt
 ````bash
