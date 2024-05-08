@@ -1,7 +1,5 @@
 __pycache__/
 .venv/
 .idea/
-/migrations/
 /tests/alembic.ini
 /tests/migrations/
-alembic.ini
