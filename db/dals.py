@@ -4,6 +4,9 @@ from typing import Union
 from uuid import UUID
 from db.models import User, Salary
 from datetime import date
+from fastapi import HTTPException
+
+
 class UserDAL:
     def __init__(self, db_session:AsyncSession):
         self.db_session = db_session
@@ -38,15 +41,36 @@ class UserDAL:
         if user_row is not None:
             return user_row[0]
 
-    async def update_user(self,user_id: UUID, **kwargs) -> Union[UUID, None]:
+    async def update_user(self, user_id: UUID, **kwargs) -> Union[UUID, None]:
+        # Проверяем, существует ли активный пользователь
+        query = select(User).where(User.user_id == user_id, User.is_active == True)
+        res = await self.db_session.execute(query)
+        user_row = res.fetchone()
+
+        if user_row is None:
+            # Если пользователя нет или он неактивен, возвращаем ошибку
+            raise HTTPException(
+                status_code=400,
+                detail=f"Пользователь с ID {user_id} не существует или не активен"
+            )
+
+        # Обновляем пользователя
         query = update(User). \
-            where(and_(User.user_id == user_id, User.is_active == True)). \
+            where(User.user_id == user_id). \
             values(kwargs). \
             returning(User.user_id)
         res = await self.db_session.execute(query)
         update_user_id_row = res.fetchone()
+
         if update_user_id_row is not None:
             return update_user_id_row[0]
+        else:
+            # В случае если обновление не произошло (неверные данные), можно вернуть None или поднять ошибку
+            raise HTTPException(
+                status_code=500,
+                detail="Не удалось обновить пользователя"
+            )
+    
     async def get_user_by_username(self, username: str) -> Union[User, None]:
         query = select(User).where(User.username == username)
         res = await self.db_session.execute(query)

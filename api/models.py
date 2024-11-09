@@ -30,6 +30,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     salary_amount: float
+    
     @field_validator("username")
     def validate_username(cls, values):
         if not LETTER_MATCH_PATTERN_USERNAME.match(values):
@@ -47,6 +48,8 @@ class UserCreate(BaseModel):
                 status_code=422, detail="Имя пользователя не должно содержать только цифры"
             )
         return values
+
+   
     @field_validator("first_name")
     def validate_first_name(cls, values):
         if not LETTER_MATCH_PATTERN_NAME.match(values):
@@ -54,6 +57,7 @@ class UserCreate(BaseModel):
                 status_code=422, detail="Имя должно содержать только символы кириллицы или латницы"
                                 )
         return values
+    
     @field_validator("last_name")
     def validate_last_name(cls, values):
         if not LETTER_MATCH_PATTERN_NAME.match(values):
@@ -61,7 +65,15 @@ class UserCreate(BaseModel):
                 status_code=422, detail="Фамилия должна содержать только символы кириллицы или латиницы"
             )
         return values
-
+    
+    @field_validator("password")
+    def validate_password(cls, value):
+        if len(value) < 1:
+            raise HTTPException(
+                status_code=422, detail="Пароль должен содержать хотя бы один символ"
+            )
+        return value
+        
     @field_validator("salary_amount")
     def validate_salary(cls, value):
         if value <= 0:
