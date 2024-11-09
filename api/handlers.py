@@ -15,9 +15,13 @@ user_router = APIRouter()
 async def create_user(body: UserCreate, db: AsyncSession = Depends(get_db)) -> ShowUser:
     try:
         return await _create_new_user(body, db)
+    except HTTPException as err:
+        logger.error(err.detail)  # Логируем текст ошибки
+        raise err  # Повторно пробрасываем уже отловленное исключение HTTPException
     except IntegrityError as err:
         logger.error(err)
-        raise HTTPException(status_code=503, detail=f"Ошибка базы данных: {err}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {err}")
+
 
 
 @user_router.delete("/", response_model=DeleteUserResponse)
